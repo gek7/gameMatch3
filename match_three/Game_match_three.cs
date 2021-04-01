@@ -11,6 +11,10 @@ using System.Drawing;
 namespace match_three
 {
     //toDo
+    //1) move ball
+    //2)destroy 3+ ball
+    //3)score counter
+    //4)start game state without 3+ ball
     public class Game_match_three : Control
     {
         int CellCount = 10;
