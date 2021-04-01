@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "match_three", "match_three\match_three.csproj", "{A1EA9A49-2458-4FF0-9EDB-26CF44A25119}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "match_three_app", "match_three_app\match_three_app.csproj", "{1A19D0B0-70E2-4142-853D-5E36F2CC2110}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1EA9A49-2458-4FF0-9EDB-26CF44A25119}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1EA9A49-2458-4FF0-9EDB-26CF44A25119}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1EA9A49-2458-4FF0-9EDB-26CF44A25119}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1EA9A49-2458-4FF0-9EDB-26CF44A25119}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A19D0B0-70E2-4142-853D-5E36F2CC2110}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A19D0B0-70E2-4142-853D-5E36F2CC2110}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A19D0B0-70E2-4142-853D-5E36F2CC2110}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A19D0B0-70E2-4142-853D-5E36F2CC2110}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {35EE5F7E-D692-4A9A-8F09-899F38C5A726}
+	EndGlobalSection
+EndGlobal
