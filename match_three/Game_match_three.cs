@@ -210,8 +210,10 @@ namespace match_three
             //Для второй фигуры
             List<Point> verticalPoints2 = new List<Point>();
             List<Point> horizontalPoints2 = new List<Point>();
-            byte buf = CellArray[to.X, to.Y];
+
             bool result = false;
+            //Смена точек местами
+            byte buf = CellArray[to.X, to.Y];
             CellArray[to.X, to.Y] = CellArray[from.X, from.Y];
             CellArray[from.X, from.Y] = buf;
 
@@ -252,6 +254,12 @@ namespace match_three
             }
             Score += score;
             scoreChanged?.Invoke();
+            if (!result)
+            {
+                buf = CellArray[to.X, to.Y];
+                CellArray[to.X, to.Y] = CellArray[from.X, from.Y];
+                CellArray[from.X, from.Y] = buf;
+            }
             return result;
         }
 
