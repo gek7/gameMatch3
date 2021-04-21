@@ -19,6 +19,11 @@ namespace match_three
     public class Game_match_three : Control
     {
         int _cellCount = 10;
+        int _score;
+
+        public delegate void scoreChangedHandler();
+        public event scoreChangedHandler scoreChanged;
+
         Point selectedCell = new Point(-1, -1);
         // Информация о ячейках 
         byte[,] CellArray = new byte[10, 10];
@@ -46,6 +51,21 @@ namespace match_three
             }
         }
 
+        public int Score
+        {
+            get
+            {
+                return _score;
+            }
+            set
+            {
+                if (value >= 0)
+                {
+                    _score = value;
+                }
+            }
+        }
+
 
         public Game_match_three() : base()
         {
@@ -53,6 +73,7 @@ namespace match_three
             FillArray();
             Width = 500;
             Height = 500;
+            Point selectedCell = new Point(-1, -1);
             MouseClick += Game_match_three_MouseClick;
 
         }
@@ -112,6 +133,7 @@ namespace match_three
                 y2 += Height / CellCount;
             }
         }
+
         // Заполняет массив
         private void FillArray()
         {
@@ -152,7 +174,7 @@ namespace match_three
                     if ((Math.Abs(from.X - to.X) == 1 && from.Y == to.Y ) ||
                         (Math.Abs(from.Y - to.Y) == 1 && from.X == to.X ))
                     {
-                        if (CheckMatchThree(from, to))
+                        if (CheckAndDeleteMatchThree(from, to))
                         {
                             MessageBox.Show("Больше 3");
                             fillDeletedBalls();
@@ -174,8 +196,9 @@ namespace match_three
         }
 
         //Проверить на возможность собрать "три в ряд" и удалить
-        public bool CheckMatchThree(Point from, Point to)
+        public bool CheckAndDeleteMatchThree(Point from, Point to)
         {
+            int score = 0;
             //Для первой фигуры
             List<Point> verticalPoints = new List<Point>();
             List<Point> horizontalPoints = new List<Point>();
@@ -195,11 +218,13 @@ namespace match_three
             if(verticalPoints.Count > 2)
             {
                 verticalPoints.ForEach(p => CellArray[p.X, p.Y] = 255);
+                score += verticalPoints.Count;
                 result = true;
             }
             if(horizontalPoints.Count > 2)
             {
                 horizontalPoints.ForEach(p => CellArray[p.X, p.Y] = 255);
+                score += horizontalPoints.Count;
                 result = true;
             }
 
@@ -210,15 +235,18 @@ namespace match_three
             if (verticalPoints2.Count > 2)
             {
                 verticalPoints2.ForEach(p => CellArray[p.X, p.Y] = 255);
+                score += verticalPoints2.Count;
                 result = true;
             }
 
             if (horizontalPoints2.Count > 2)
             {
                 horizontalPoints2.ForEach(p => CellArray[p.X, p.Y] = 255);
+                score += horizontalPoints2.Count;
                 result = true;
             }
-
+            Score += score;
+            scoreChanged?.Invoke();
             return result;
         }
 
@@ -373,5 +401,14 @@ namespace match_three
             return true;
         }
 
+        public void NewGame()
+        {
+            CellArray = new byte[10, 10];
+            FillArray();
+            Score = 0;
+            selectedCell = new Point(-1, -1);
+            scoreChanged?.Invoke();
+            Invalidate();
+        }
     }
 }

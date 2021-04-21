@@ -16,6 +16,17 @@ namespace match_three_app
         public Form1()
         {
             InitializeComponent();
+            game_match_three1.scoreChanged += Game_match_three1_scoreChanged;
+        }
+
+        private void Game_match_three1_scoreChanged()
+        {
+            label1.Text = "Счёт: " + game_match_three1.Score;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            game_match_three1.NewGame();
         }
     }
 }
