@@ -10,16 +10,11 @@ using System.Drawing;
 
 namespace match_three
 {
-    //toDo
-    //1) move ball
-    //2) destroy 3+ ball
-    //3) score counter
-    //4) start game state without 3+ ball
-    //5) Count only close ball
     public class Game_match_three : Control
     {
         int _cellCount = 10;
         int _score;
+        int _maxScore = 50;
 
         public delegate void scoreChangedHandler();
         public event scoreChangedHandler scoreChanged;
@@ -34,6 +29,59 @@ namespace match_three
         new SolidBrush(Color.Blue),
         new SolidBrush(Color.Yellow)
         };
+
+        public SolidBrush CvetFiguri1
+        {
+            get
+            {
+                return  (SolidBrush)Colors[1];
+            }
+            set
+            {
+                Colors[1] = value;
+                Invalidate();
+            }
+        }
+
+        public SolidBrush CvetFiguri2
+        {
+            get
+            {
+                return (SolidBrush)Colors[2];
+            }
+            set
+            {
+                Colors[2] = value;
+                Invalidate();
+            }
+        }
+
+        public SolidBrush CvetFiguri3
+        {
+            get
+            {
+                return (SolidBrush)Colors[3];
+            }
+            set
+            {
+                Colors[3] = value;
+                Invalidate();
+            }
+        }
+
+        public SolidBrush CvetFiguri4
+        {
+            get
+            {
+                return (SolidBrush)Colors[4];
+            }
+            set
+            {
+                Colors[4] = value;
+                Invalidate();
+            }
+        }
+
 
         //Свойства
         public int CellCount
@@ -63,7 +111,7 @@ namespace match_three
                 {
                     _score = value;
 
-                    if (value >= 50)
+                    if (value >= MaxScore)
                     {
                         MessageBox.Show("Вы победили!!!");
                         NewGame();
@@ -72,6 +120,17 @@ namespace match_three
             }
         }
 
+        public int MaxScore
+        {
+            get
+            {
+                return _maxScore;
+            }
+            set
+            {
+                _maxScore = value;
+            }
+        }
 
         public Game_match_three() : base()
         {
