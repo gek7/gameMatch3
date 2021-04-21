@@ -62,6 +62,12 @@ namespace match_three
                 if (value >= 0)
                 {
                     _score = value;
+
+                    if (value >= 50)
+                    {
+                        MessageBox.Show("Вы победили!!!");
+                        NewGame();
+                    }
                 }
             }
         }
@@ -176,7 +182,6 @@ namespace match_three
                     {
                         if (CheckAndDeleteMatchThree(from, to))
                         {
-                            MessageBox.Show("Больше 3");
                             fillDeletedBalls();
                         }
                     }
