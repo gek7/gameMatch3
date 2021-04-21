@@ -12,12 +12,13 @@ namespace match_three
 {
     //toDo
     //1) move ball
-    //2)destroy 3+ ball
-    //3)score counter
-    //4)start game state without 3+ ball
+    //2) destroy 3+ ball
+    //3) score counter
+    //4) start game state without 3+ ball
+    //5) Count only close ball
     public class Game_match_three : Control
     {
-        int CellCount = 10;
+        int _cellCount = 10;
         Point selectedCell = new Point(-1, -1);
         // Информация о ячейках 
         byte[,] CellArray = new byte[10, 10];
@@ -28,13 +29,32 @@ namespace match_three
         new SolidBrush(Color.Blue),
         new SolidBrush(Color.Yellow)
         };
+
+        //Свойства
+        public int CellCount
+        {
+            get
+            {
+                return _cellCount;
+            }
+            set
+            {
+                if (value > 0)
+                {
+                    _cellCount = value;
+                }
+            }
+        }
+
+
         public Game_match_three() : base()
         {
             this.DoubleBuffered = true;
             FillArray();
             Width = 500;
             Height = 500;
-            MouseClick += Game_match_three_MouseClick; ;
+            MouseClick += Game_match_three_MouseClick;
+
         }
 
         private void Game_match_three_MouseClick(object sender, MouseEventArgs e)
@@ -75,7 +95,7 @@ namespace match_three
                 for (int j = 0; j < CellCount; j++)
                 {
                     byte c = CellArray[i, j];
-                    //e.Graphics.FillRectangle(new SolidBrush(Color.Red), new Rectangle(x1+10, y1+10, Height / RowCount-20, Width / ColCount-20));
+                    if(c<Colors.Length)
                     e.Graphics.FillEllipse(Colors[c], new Rectangle(x1 + 10, y1 + 10, Height / CellCount - 20, Width / CellCount - 20));
 
 
@@ -100,7 +120,13 @@ namespace match_three
             {
                 for (int j = 0; j < CellCount; j++)
                 {
-                    CellArray[i, j] =(byte) ColorR.Next(1, 5);
+                    byte color = (byte)ColorR.Next(1, 5);
+                    Point p = new Point(i, j);
+                    while(findMatchThree(p, color))
+                    {
+                        color =(byte) ColorR.Next(1, 5);
+                    }
+                    CellArray[i, j] = color;
                 }
             }
         }
@@ -115,18 +141,28 @@ namespace match_three
             int yp = y / ((Height - offset) / CellCount);
             if (xp < CellCount && yp < CellCount)
             {
-                //Значение выбраной ячейки
-                int value = CellArray[xp, yp];
 
-                //Ячейка пустая (Перемещение точки)
-                if (value == 0)
+                //Выбрана ячейка (Перемещение точки)
+                if (selectedCell.X != -1)
                 {
-                    if (selectedCell.X != -1)
+                    Point from = new Point(selectedCell.X, selectedCell.Y);
+                    Point to = new Point(xp, yp);
+
+                    //Проверка на возможность перемещения шарика из ячейки {from} в ячейку {to}
+                    if ((Math.Abs(from.X - to.X) == 1 && from.Y == to.Y ) ||
+                        (Math.Abs(from.Y - to.Y) == 1 && from.X == to.X ))
                     {
-                       
+                        if (CheckMatchThree(from, to))
+                        {
+                            MessageBox.Show("Больше 3");
+                            fillDeletedBalls();
+                        }
                     }
+                    selectedCell.X = -1;
+                    selectedCell.Y = -1;
+                    Invalidate();
                 }
-                //Ячейка не пустая (перевыбор точки)
+                //Ячейка не выбрана (выбор точки)
                 else
                 {
                     Point p = selectedCell;
@@ -137,32 +173,204 @@ namespace match_three
             }
         }
 
-        //Удаляет 3+ в ряд
-        public bool removeStackIfExists(Point cell)
+        //Проверить на возможность собрать "три в ряд" и удалить
+        public bool CheckMatchThree(Point from, Point to)
         {
-            List<Point> lst = new List<Point>();
-            List<Point> buf = new List<Point>();
-            int index = 0;
-            lst.Add(cell);
-            while (index<lst.Count)
-            {
-                Point p = lst.Last();
-                //if (p.)
-                //{
+            //Для первой фигуры
+            List<Point> verticalPoints = new List<Point>();
+            List<Point> horizontalPoints = new List<Point>();
+            //Для второй фигуры
+            List<Point> verticalPoints2 = new List<Point>();
+            List<Point> horizontalPoints2 = new List<Point>();
+            byte buf = CellArray[to.X, to.Y];
+            bool result = false;
+            CellArray[to.X, to.Y] = CellArray[from.X, from.Y];
+            CellArray[from.X, from.Y] = buf;
 
-                //}
-                index++;
+            //Поиск три в ряд у первой фигуры
+            Point cell = to;
+            byte color = CellArray[to.X, to.Y];
+            findMatchThree(horizontalPoints, verticalPoints, cell, color);
+
+            if(verticalPoints.Count > 2)
+            {
+                verticalPoints.ForEach(p => CellArray[p.X, p.Y] = 255);
+                result = true;
+            }
+            if(horizontalPoints.Count > 2)
+            {
+                horizontalPoints.ForEach(p => CellArray[p.X, p.Y] = 255);
+                result = true;
             }
 
-            //////Удаление//////
-            while (lst.Count > 0)
+            //Поиск три в ряд у второй фигуры
+            cell = from;
+            color = CellArray[from.X, from.Y];
+            findMatchThree(horizontalPoints2, verticalPoints2, cell, color);
+            if (verticalPoints2.Count > 2)
             {
-                Point p = lst.Last();
-                //CellArray[p.X, p.Y] = null;
-                lst.RemoveAt(lst.Count - 1);
-                //score++;
+                verticalPoints2.ForEach(p => CellArray[p.X, p.Y] = 255);
+                result = true;
             }
-            return false;
+
+            if (horizontalPoints2.Count > 2)
+            {
+                horizontalPoints2.ForEach(p => CellArray[p.X, p.Y] = 255);
+                result = true;
+            }
+
+            return result;
+        }
+
+        public void fillDeletedBalls()
+        {
+            Random ColorR = new Random();
+            for (int i = 0; i < CellCount; i++)
+            {
+                for (int j = 0; j < CellCount; j++)
+                {
+                    if(CellArray[i, j] == 255)
+                    {
+                        byte color = (byte)ColorR.Next(1, 5);
+                        Point p = new Point(i, j);
+                        while (findMatchThree(p, color))
+                        {
+                            color = (byte)ColorR.Next(1, 5);
+                        }
+                        CellArray[i, j] = color;
+                    }
+                }
+            }
+        }
+
+        //Нахождение всех соприкасающихся кругов с кругом в ячейке {cell}, у которых цвет {color}
+        public void findMatchThree(List<Point> horizontalPoints, List<Point> verticalPoints, Point cell, byte color)
+        {
+            horizontalPoints.Add(cell);
+            verticalPoints.Add(cell);
+            int x = cell.X - 1;
+            int y = cell.Y;
+            //Влево
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                horizontalPoints.Add(currPoint);
+
+                x--;
+            }
+
+            x = cell.X + 1;
+            y = cell.Y;
+            //Вправо
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                horizontalPoints.Add(currPoint);
+
+                x++;
+            }
+
+
+            x = cell.X;
+            y = cell.Y - 1;
+            //Вверх
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                verticalPoints.Add(currPoint);
+
+                y--;
+            }
+
+            x = cell.X;
+            y = cell.Y + 1;
+            //Вниз
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                verticalPoints.Add(currPoint);
+
+                y++;
+            }
+        }
+
+        //Нахождение всех соприкасающихся кругов с кругом в ячейке {cell}, у которых цвет {color} и возвращение были ли они найдены
+        public bool findMatchThree(Point cell, byte color)
+        {
+            List<Point> horizontalPoints = new List<Point>();
+            List<Point> verticalPoints = new List<Point>();
+
+            horizontalPoints.Add(cell);
+            verticalPoints.Add(cell);
+
+            int x = cell.X - 1;
+            int y = cell.Y;
+            //Влево
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                horizontalPoints.Add(currPoint);
+
+                x--;
+            }
+
+            x = cell.X + 1;
+            y = cell.Y;
+            //Вправо
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                horizontalPoints.Add(currPoint);
+
+                x++;
+            }
+
+
+            x = cell.X;
+            y = cell.Y - 1;
+            //Вверх
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                verticalPoints.Add(currPoint);
+
+                y--;
+            }
+
+            x = cell.X;
+            y = cell.Y + 1;
+            //Вниз
+            while (isValidCoord(x, y) && CellArray[x, y] == color)
+            {
+                Point currPoint = new Point(x, y);
+                verticalPoints.Add(currPoint);
+
+                y++;
+            }
+
+            if(horizontalPoints.Count>2 || verticalPoints.Count > 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        //Координаты не выходят за границы
+        public bool isValidCoord(int x, int y)
+        {
+            if (x < 0 || y < 0)
+            {
+                return false;
+            }
+            if (x > CellCount - 1 || y > CellCount - 1)
+            {
+                return false;
+            }
+
+            return true;
         }
 
     }
